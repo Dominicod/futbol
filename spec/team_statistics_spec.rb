@@ -44,4 +44,9 @@ RSpec.describe TeamStatistics do
             expect(@team_statistics.worst_season("6")).to eq("20142015")
         end
     end
+    describe ".average_win_percentage" do
+        it 'returns average_win_percentage' do
+            expect(@team_statistics.average_win_percentage("6")).to eq(0.49)
+        end
+    end
 end
