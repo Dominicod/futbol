@@ -25,6 +25,11 @@ class TeamStatistics
     percentage(team_id, :lowest_win)
   end
 
+  def average_win_percentage(team_id)
+    # returns average win percentage of all games for a team.
+    percentage(team_id, :average_percent)
+  end
+
   def percentage(team_id, data_choice)
 		# returns output based on data_choice input, calculates win and loss percentages
     module_return = Uniquable.unique_seasons_hash(@data)
@@ -38,8 +43,8 @@ class TeamStatistics
     
     total_season_hash.each do |_key, value|
       value[2] = value[0] - value[1]
-      value[1] = ((value[1] / 100) * 100).round(2)
-      value[2] = ((value[2] / 100) * 100).round(2)
+      value[1] = (value[1] / value[0]).round(2)
+      value[2] = (value[2] / value[0]).round(2)
     end
 
     highest_percent_arr = [0]
@@ -49,7 +54,13 @@ class TeamStatistics
       highest_percent_arr[0] < value[1] ? highest_percent_arr = [value[1], key] : false
       value[1] < lowest_percent_arr[0] ? lowest_percent_arr = [value[1], key] : false
     end
-    data_choice == :highest_win ? highest_percent_arr[1] : lowest_percent_arr[1]
+    if data_choice == :highest_win
+      highest_percent_arr[1]
+    elsif data_choice == :lowest_win 
+      lowest_percent_arr[1]
+    else
+      average_percent = (((total_season_hash.map {|_key, value| value[1]}).sum)/total_season_hash.count).round(2)
+    end
   end
 	
 	def update_total_count(season, total_season_hash, row, team_id)
