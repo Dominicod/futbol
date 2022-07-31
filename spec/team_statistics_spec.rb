@@ -35,12 +35,12 @@ RSpec.describe TeamStatistics do
         end
     end
     describe ".best_season" do
-        it 'returns highest win percentage' do
+        it 'returns season with highest win percentage' do
             expect(@team_statistics.best_season("6")).to eq("20132014")
         end
     end
     describe ".worst_season" do
-        it 'returns highest win percentage' do
+        it 'returns season with lowest win percentage' do
             expect(@team_statistics.worst_season("6")).to eq("20142015")
         end
     end
