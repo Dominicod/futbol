@@ -49,4 +49,14 @@ RSpec.describe TeamStatistics do
             expect(@team_statistics.average_win_percentage("6")).to eq(0.49)
         end
     end
+    describe ".most_goals_scored" do
+        it 'returns most goals scored in a game' do
+            expect(@team_statistics.most_goals_scored("18")).to eq 7
+        end
+    end
+    describe ".fewest_goals_scored" do
+        it 'returns fewest goals scored in a game' do
+            expect(@team_statistics.fewest_goals_scored("18")).to eq 0
+        end 
+    end
 end

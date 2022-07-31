@@ -30,6 +30,14 @@ class TeamStatistics
     percentage(team_id, :average_percent)
   end
 
+  def most_goals_scored(team_id)
+    goals_by_team_id(team_id).max
+  end
+
+  def fewest_goals_scored(team_id)
+    goals_by_team_id(team_id).min
+  end
+
   def percentage(team_id, data_choice)
 		# returns output based on data_choice input, calculates win and loss percentages
     module_return = Uniquable.unique_seasons_hash(@data)
@@ -72,4 +80,14 @@ class TeamStatistics
 			total_season_hash[season][1] += 1 if row[:away_goals] > row[:home_goals]
 		end
 	end
+  
+  def goals_by_team_id(team_id)
+    team_goals = [] 
+    @data[:game_teams].each do |row|
+      if row[:team_id] == team_id
+        team_goals << row[:goals].to_i
+      end
+    end
+    team_goals
+  end
 end
