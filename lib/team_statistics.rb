@@ -1,12 +1,15 @@
+require_relative 'uniquable.rb'
+
 class TeamStatistics
-  def initialize(statistics)
-    @statistics = statistics
+  include Uniquable
+  def initialize(data)
+    @data = data
   end
 
   def team_info(team_id)
     # returns hash with team_id, franchise_id, team_name, abbreviation, and link
-    team_index = @statistics[:teams][:team_id].index(team_id)
-    team_info_return = @statistics[:teams][team_index].to_h.reject { |key, _value| key == :stadium }
+    team_index = @data[:teams][:team_id].index(team_id)
+    team_info_return = @data[:teams][team_index].to_h.reject { |key, _value| key == :stadium }
     team_info_return[:team_name] = team_info_return.delete(:teamname)
     team_info_return[:franchise_id] = team_info_return.delete(:franchiseid)
     team_info_return.transform_keys { |key| key.to_s rescue key }
@@ -24,57 +27,38 @@ class TeamStatistics
 
   def percentage(team_id, data_choice)
 		# returns output based on data_choice input, calculates win and loss percentages
-    game_by_season = season_by_id(team_id)
-    total_season = (game_by_season.uniq { |season| season[:season] }).map { |season| season[:season] }
-    total_count = Hash.new
-    total_season.each { |season| total_count.store(season, [0.0, 0.0, 0.0]) }
-    # calculate total games in total_count[0], then wins in total_count[1], then loss in total_count[2]
-    total_season.each do |season|
+    module_return = Uniquable.unique_seasons_hash(@data)
+    game_by_season = Uniquable.unique_season_by_id(team_id, module_return[0])
+    total_season_hash = module_return[1].transform_values { |value| [0.0, 0.0, 0.0]}
+    total_season_hash.each do |season, _value|
       game_by_season.each do |row|
-				update_total_count(season,total_count, row, team_id) if row[:season] == season
+				update_total_count(season,total_season_hash, row, team_id) if row[:season] == season
       end
     end
-		
-    # changes floats to percent
-    total_count.each do |_key, value|
+    
+    total_season_hash.each do |_key, value|
+      value[2] = value[0] - value[1]
       value[1] = ((value[1] / 100) * 100).round(2)
-			value[2] = value[0] - value[1]
       value[2] = ((value[2] / 100) * 100).round(2)
     end
 
-    highest_percent = 0
-    lowest_percent = 100
-    winning_season = nil
-    losing_season = nil
+    highest_percent_arr = [0]
+    lowest_percent_arr = [100]
 
-    # returns the winning_season and losing_season by comparing floats in total_count
-    total_count.each do |key, value|
-      if highest_percent < value[1]
-        highest_percent = value[1]
-        winning_season = key
-      end
-      if value[1] < lowest_percent
-        lowest_percent = value[1]
-        losing_season = key
-      end
+    total_season_hash.map do |key, value| 
+      highest_percent_arr[0] < value[1] ? highest_percent_arr = [value[1], key] : false
+      value[1] < lowest_percent_arr[0] ? lowest_percent_arr = [value[1], key] : false
     end
-
-    data_choice == :highest_win ? winning_season : losing_season
-  end
-
-	def season_by_id(team_id)
-		# returns a list of seasons by ID, sorted by numerical order 
-    games = @statistics[:games]
-    season_by_id = (games.find_all { |row| row[:home_team_id] == team_id || row[:away_team_id] == team_id}).sort_by { |obj| obj[:season] }
+    data_choice == :highest_win ? highest_percent_arr[1] : lowest_percent_arr[1]
   end
 	
-	def update_total_count(season, total_count, row, team_id)
+	def update_total_count(season, total_season_hash, row, team_id)
 		# updates total_count hash with new values based on conditions
-		total_count[season][0] += 1
+		total_season_hash[season][0] += 1
 		if row[:home_team_id] == team_id
-			total_count[season][1] += 1 if row[:home_goals] > row[:away_goals]
+			total_season_hash[season][1] += 1 if row[:home_goals] > row[:away_goals]
 		elsif row[:away_team_id] == team_id
-			total_count[season][1] += 1 if row[:away_goals] > row[:home_goals]
+			total_season_hash[season][1] += 1 if row[:away_goals] > row[:home_goals]
 		end
 	end
 end
