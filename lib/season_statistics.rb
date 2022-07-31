@@ -23,6 +23,14 @@ class SeasonStatistics
 		least_accurate = goal_percentage(season).min_by{|team, average| average}
 			return_team_name(least_accurate[0])
 	end
+	def most_tackles(season)
+		most_tackles = total_tackles(season).max_by{|team, tackles| tackles}
+			return_team_name(most_tackles[0])
+	end
+	def fewest_tackles(season)
+		fewest_tackles = total_tackles(season).min_by{|team, tackles| tackles}
+		return_team_name(fewest_tackles[0])
+	end
 	def goal_percentage(season)
 		season_data = @data[:game_teams].select do |row|
 			row[:game_id][0, 4] == season[0, 4]		
@@ -72,5 +80,18 @@ class SeasonStatistics
 		end
 		return team_name
 	end
+	def total_tackles(season)
+		season_data = @data[:game_teams].select do |row|
+			row[:game_id][0, 4] == season[0, 4]		
+		end
+		total_tackles_hash = Hash.new
+			season_data.each do |row|
+				total_tackles_hash.store(row[:team_id], [0.0])
+			end 
+			season_data.each do |row| 
+				total_tackles_hash[row[:team_id]][0] += row[:tackles].to_f
+			end 	
+			total_tackles_hash
+	end 
 end
 
