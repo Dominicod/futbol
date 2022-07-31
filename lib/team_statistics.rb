@@ -38,6 +38,16 @@ class TeamStatistics
     goals_by_team_id(team_id).min
   end
 
+  def favorite_opponent(team_id)
+
+  end
+
+  def rival(team_id)
+
+  end
+
+
+
   def percentage(team_id, data_choice)
 		# returns output based on data_choice input, calculates win and loss percentages
     module_return = Uniquable.unique_seasons_hash(@data)

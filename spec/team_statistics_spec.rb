@@ -59,4 +59,14 @@ RSpec.describe TeamStatistics do
             expect(@team_statistics.fewest_goals_scored("18")).to eq 0
         end 
     end
+    describe ".favorite_opponent" do
+        it 'returns opponent with lowest winning percentage against given team' do
+            expect(@team_statistics.favorite_opponent("18")).to eq "DC United"
+        end
+    end
+    describe ".rival" do
+        it 'returns opponent with highest winning percentage against given team' do
+            expect(@team_statistics.rival("18")).to eq("Houston Dash").or(eq("LA Galaxy"))
+        end
+    end
 end
