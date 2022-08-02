@@ -30,6 +30,26 @@ class TeamStatistics
     percentage(team_id, :average_percent)
   end
 
+  def most_goals_scored(team_id)
+    goals_by_team_id(team_id).max
+  end
+
+  def fewest_goals_scored(team_id)
+    goals_by_team_id(team_id).min
+  end
+
+  def favorite_opponent(team_id)
+    fav_opp = average_win_percentage_against_opponent(team_id).min_by{ |team, percentage| percentage }
+    return_team_name(fav_opp[0])
+  end
+
+  def rival(team_id)
+    rival_opp = average_win_percentage_against_opponent(team_id).max_by{ |team, percentage| percentage }
+    return_team_name(rival_opp[0])
+  end
+
+
+
   def percentage(team_id, data_choice)
 		# returns output based on data_choice input, calculates win and loss percentages
     module_return = Uniquable.unique_seasons_hash(@data)
@@ -72,4 +92,50 @@ class TeamStatistics
 			total_season_hash[season][1] += 1 if row[:away_goals] > row[:home_goals]
 		end
 	end
+  
+  def goals_by_team_id(team_id)
+    team_goals = [] 
+    @data[:game_teams].each do |row|
+      if row[:team_id] == team_id
+        team_goals << row[:goals].to_i
+      end
+    end
+    team_goals
+  end
+
+  def average_win_percentage_against_opponent(team_id)
+    game_teams = @data[:game_teams]
+    games_played = []
+    game_teams.each do |row| #find_all
+      if row[:team_id] == team_id
+        games_played << row[:game_id]
+      end
+    end
+    opponent_rows = game_teams.select do |row|
+      games_played.any?(row[:game_id]) && row[:team_id] != team_id
+    end
+    opponent_win_percentage = Hash.new([])
+    opponent_rows.each do |row|
+      opponent_win_percentage.store(row[:team_id], [0, 0])
+    end
+    opponent_rows.each do |row|
+      opponent_win_percentage[row[:team_id]][0] += 1
+      if row[:result] == "WIN" 
+        opponent_win_percentage[row[:team_id]][1] += 1 
+      end
+    end
+    opponent_win_percentage.each do |key, value|
+      opponent_win_percentage[key] = (value[1].to_f / value[0].to_f).round(4)
+    end
+    opponent_win_percentage
+  end
+  def return_team_name(team_id)
+    team_name = nil
+    @data[:teams].each do |row|
+      if row[:team_id] == team_id
+        team_name = row[:teamname]
+      end
+    end
+    return team_name
+  end
 end
