@@ -12,11 +12,7 @@ class TeamStatistics
     team_info_return = @data[:teams][team_index].to_h.reject { |key, _value| key == :stadium }
     team_info_return[:team_name] = team_info_return.delete(:teamname)
     team_info_return[:franchise_id] = team_info_return.delete(:franchiseid)
-    team_info_return.transform_keys do |key|
-      key.to_s
-    rescue StandardError
-      key
-    end
+    team_info_return.transform_keys {|key| key.to_s rescue key}
   end
 
   def best_season(team_id)
