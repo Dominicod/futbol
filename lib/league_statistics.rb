@@ -1,4 +1,5 @@
 require_relative 'nameable'
+
 class LeagueStatistics
   include Nameable
   def initialize(data)
