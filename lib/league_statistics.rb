@@ -54,27 +54,29 @@ class LeagueStatistics
     if hoa_type == 'home'
       @data_set[:game_teams].each do |row|
         if row[:hoa] == 'home'
-          teams_goals_stats[row[:team_id]][0] += 1
-          teams_goals_stats[row[:team_id]][1] += row[:goals].to_f
+          add_to_total(row, teams_goals_stats)
         end
       end
     elsif hoa_type == 'away'
       @data_set[:game_teams].each do |row|
         if row[:hoa] == 'away'
-          teams_goals_stats[row[:team_id]][0] += 1
-          teams_goals_stats[row[:team_id]][1] += row[:goals].to_f
+          add_to_total(row, teams_goals_stats)
         end
       end
     else
       @data_set[:game_teams].each do |row|
-        teams_goals_stats[row[:team_id]][0] += 1
-        teams_goals_stats[row[:team_id]][1] += row[:goals].to_f
+        add_to_total(row, teams_goals_stats)
       end
     end
     teams_goals_stats.each do |team, stat|
       teams_goals_stats[team] = (stat[1] / stat[0]).round(2)
     end
     teams_goals_stats
+  end
+
+  def add_to_total(row, teams_goals_stats)
+    teams_goals_stats[row[:team_id]][0] += 1
+    teams_goals_stats[row[:team_id]][1] += row[:goals].to_f
   end
 
   def return_team_name(team_id)
