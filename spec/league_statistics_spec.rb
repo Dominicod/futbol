@@ -14,8 +14,8 @@ RSpec.describe LeagueStatistics do
       game_teams: game_teams_path
     }
 
-    @data_set = StatTracker.from_csv(locations)
-    @league_statistics = LeagueStatistics.new(@data_set.data)
+    @data = StatTracker.from_csv(locations)
+    @league_statistics = LeagueStatistics.new(@data.data)
   end
   describe '.LeagueStatistics instantiation' do
     it 'is instance of class' do
