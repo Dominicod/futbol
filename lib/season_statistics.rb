@@ -1,5 +1,7 @@
+require_relative 'nameable'
 
 class SeasonStatistics
+  include Nameable
   def initialize(data)
     @data = data
   end
@@ -18,22 +20,22 @@ class SeasonStatistics
 
   def most_accurate_team(season)
     most_accurate = goal_percentage(season).max_by { |_team, average| average }
-    return_team_name(most_accurate[0])
+    Nameable.return_team_name(most_accurate[0], @data)
   end
 
   def least_accurate_team(season)
     least_accurate = goal_percentage(season).min_by { |_team, average| average }
-    return_team_name(least_accurate[0])
+    Nameable.return_team_name(least_accurate[0], @data)
   end
 
   def most_tackles(season)
     most_tackles = total_tackles(season).max_by { |_team, tackles| tackles }
-    return_team_name(most_tackles[0])
+    Nameable.return_team_name(most_tackles[0], @data)
   end
 
   def fewest_tackles(season)
     fewest_tackles = total_tackles(season).min_by { |_team, tackles| tackles }
-    return_team_name(fewest_tackles[0])
+    Nameable.return_team_name(fewest_tackles[0], @data)
   end
 
   def goal_percentage(season)
@@ -72,10 +74,6 @@ class SeasonStatistics
     elsif row[:result] == 'LOSS'
       coaches_games[row[:head_coach]][2] += 1
     end
-  end
-
-  def return_team_name(team_id)
-    team_name = (@data[:teams].select {|row| row[:team_id] == team_id})[0][:teamname]
   end
 
   def total_tackles(season)

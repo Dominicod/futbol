@@ -1,7 +1,9 @@
 require_relative 'uniquable'
+require_relative 'nameable'
 
 class TeamStatistics
   include Uniquable
+  include Nameable
   def initialize(data)
     @data = data
   end
@@ -40,12 +42,12 @@ class TeamStatistics
 
   def favorite_opponent(team_id)
     fav_opp = average_win_percentage_against_opponent(team_id).min_by { |_team, percentage| percentage }
-    return_team_name(fav_opp[0])
+    Nameable.return_team_name(fav_opp[0], @data)
   end
 
   def rival(team_id)
     rival_opp = average_win_percentage_against_opponent(team_id).max_by { |_team, percentage| percentage }
-    return_team_name(rival_opp[0])
+    Nameable.return_team_name(rival_opp[0], @data)
   end
 
   def percentage(team_id, data_choice)
@@ -120,13 +122,5 @@ class TeamStatistics
       opponent_win_percentage[key] = (value[1].to_f / value[0].to_f).round(4)
     end
     opponent_win_percentage
-  end
-
-  def return_team_name(team_id)
-    team_name = nil
-    @data[:teams].each do |row|
-      team_name = row[:teamname] if row[:team_id] == team_id
-    end
-    team_name
   end
 end
